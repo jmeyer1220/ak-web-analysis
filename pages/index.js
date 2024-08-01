@@ -19,53 +19,52 @@ const handleSubmit = async (e) => {
   e.preventDefault();
   setError(null);
   setPageCount(null);
+  setCms([]);
+  setHosting([]);
+  setOtherTechnologies([]);
   setContentTypes({});
   setContentTypeBreakdown({});
   setTrackingTags({});
   setIsAnalyzed(false);
 
   try {
+    // Fetch page analysis data
     const pageAnalysisResponse = await axios.get(`/api/crawl?url=${url}`);
-    const data = pageAnalysisResponse.data;
+    const pageData = pageAnalysisResponse.data;
 
-    if (data.error) {
-      throw new Error(data.error);
+    if (pageData.error) {
+      throw new Error(pageData.error);
     }
 
+    setPageCount(pageData.pageCount || 0);
+    setContentTypes(pageData.contentTypes || {});
+    setContentTypeBreakdown(pageData.contentTypeBreakdown || {});
+    setTrackingTags(pageData.trackingTags || {});
 
-    try {
-      const pageAnalysisResponse = await axios.get(`/api/crawl?url=${url}`);
-      setPageCount(data.pageCount || 0);
-      setContentTypes(data.contentTypes || {});
-      setContentTypeBreakdown(data.contentTypeBreakdown || {});
-      setTrackingTags(data.trackingTags || {});
+    // Fetch technologies
+    const technologiesResponse = await axios.get(`/api/platform?url=${url}`);
+    const techData = technologiesResponse.data;
 
-  
-      // Fetch technologies
-      const technologiesResponse = await axios.get(`/api/platform?url=${url}`);
-      setCms(technologiesResponse.data.cms);
-      setHosting(technologiesResponse.data.hosting);
-      setOtherTechnologies(technologiesResponse.data.otherTechnologies);
-      setTrackingTags(pageAnalysisResponse.data.trackingTags);
+    setCms(techData.cms || []);
+    setHosting(techData.hosting || []);
+    setOtherTechnologies(techData.otherTechnologies || []);
 
+    // Fetch performance (commented out for now)
+    /*
+    const performanceResponse = await axios.get(`/api/performance?url=${url}`);
+    setPerformance(performanceResponse.data.performance);
+    */
 
-      // Fetch performance
-      /*const performanceResponse = await axios.get(
-        `/api/performance?url=${url}`,
-      );
-      setPerformance(performanceResponse.data.performance);*/
-
-      setIsAnalyzed(true); // Set analysis status to true
-    } catch (err) {
-      console.error(
-        "Error fetching data:",
-        err.response?.data || err.message,
-        err.stack,
-      );
-      setError("Error fetching data. Check the console for more details.");
-    }
-  };
-
+    setIsAnalyzed(true);
+  } catch (err) {
+    console.error(
+      "Error fetching data:",
+      err.response?.data || err.message,
+      err.stack
+    );
+    setError("Error fetching data. Check the console for more details.");
+  }
+};
   const handleScrape = async (e) => {
     e.preventDefault();
     setError(null);
