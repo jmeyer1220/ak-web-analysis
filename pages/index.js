@@ -34,10 +34,10 @@ export default function Analyze() {
       setOtherTechnologies(technologiesResponse.data.otherTechnologies);
 
       // Fetch performance
-      const performanceResponse = await axios.get(
+      /*const performanceResponse = await axios.get(
         `/api/performance?url=${url}`,
       );
-      setPerformance(performanceResponse.data.performance);
+      setPerformance(performanceResponse.data.performance);*/
 
       setIsAnalyzed(true); // Set analysis status to true
     } catch (err) {
