@@ -102,8 +102,9 @@ export default function Analyze() {
               Analysis Results:
             </h2>
             <p>
-              <strong>Page Count:</strong> {pageCount}
+              <strong>Page Count:</strong>
             </p>
+            <h3 className="text-xl font-semibold text-gray-700">{pageCount}</h3>
           </div>
         )}
 
