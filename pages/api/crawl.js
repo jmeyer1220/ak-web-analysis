@@ -3,13 +3,13 @@ import cheerio from "cheerio";
 import url from "url";
 
 const contentPatterns = [
-  { pattern: /\/(blog|article|post|news)\//, type: "Articles" },
+  { pattern: /\/(blog|article|post|news|blogs|articles|posts)\//, type: "Articles" },
   { pattern: /\/(event|events|webinar|workshop|conference)\//, type: "Events" },
-  { pattern: /\/(product|item|service)\//, type: "Product/Services" },
-  { pattern: /\/(about|contact|faq)/, type: "Infos" },
-  { pattern: /\/(staff|people|team)/, type: "Staffs" },
-  { pattern: /\/(ministry|ministries|youth|adults|young-adults|kids|children)/, type: "Ministry" },
-  { pattern: /\/(episode|podcast)\//, type: "Podcasts" },
+  { pattern: /\/(product|item|service)\//, type: "Product/Service Pages" },
+  { pattern: /\/(about|contact|faq)/, type: "Info Pages" },
+  { pattern: /\/(staff|people|team)/, type: "Staff" },
+  { pattern: /\/(ministry|ministries|youth|adults|young-adults|kids|children|students)/, type: "Ministry Pages" },
+  { pattern: /\/(episode|podcast|podcasts|episodes)\//, type: "Podcasts" },
   { pattern: /\/(group|home-group|connect-group)/, type: "Groups" },
   { pattern: /\/(resource|download|ebook|whitepaper)\//, type: "Resources" },
   { pattern: /\/(sermon|message|messages|sermons|watch)\//, type: "Sermons" },
