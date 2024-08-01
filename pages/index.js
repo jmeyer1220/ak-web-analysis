@@ -12,7 +12,8 @@ export default function Analyze() {
   const [error, setError] = useState(null);
   const [isAnalyzed, setIsAnalyzed] = useState(false); // New state variable
   const [contentTypes, setContentTypes] = useState({});
-const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
+  const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
+  const [trackingTags, setTrackingTags] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,12 +30,15 @@ const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
       setPageCount(pageAnalysisResponse.data.pageCount);
       setContentTypes(pageAnalysisResponse.data.contentTypes);
       setContentTypeBreakdown(pageAnalysisResponse.data.contentTypeBreakdown);
+
   
       // Fetch technologies
       const technologiesResponse = await axios.get(`/api/platform?url=${url}`);
       setCms(technologiesResponse.data.cms);
       setHosting(technologiesResponse.data.hosting);
       setOtherTechnologies(technologiesResponse.data.otherTechnologies);
+      setTrackingTags(pageAnalysisResponse.data.trackingTags);
+
 
       // Fetch performance
       /*const performanceResponse = await axios.get(
@@ -158,6 +162,18 @@ const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
             </ul>
           </div>
         )}
+        {Object.keys(trackingTags).length > 0 && (
+  <div className="mb-4">
+    <h3 className="text-xl font-semibold text-gray-700">Tracking Tags:</h3>
+    <ul className="list-disc pl-5">
+      {Object.entries(trackingTags).map(([tag, id]) => (
+        <li key={tag}>
+          {tag}: {id}
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
 
         {performance !== null && (
           <div className="mb-4">
