@@ -1,0 +1,34 @@
+{
+  "name": "my-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "CHROME_PATH=$(which chromium) next dev",
+    "build": "next build",
+    "start": "next start --port 3000 --hostname 0.0.0.0",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@mendable/firecrawl-js": "^0.0.30",
+    "autoprefixer": "^10.4.19",
+    "axios": "^1.7.2",
+    "builtwith": "^1.0.2",
+    "cheerio": "^1.0.0-rc.12",
+    "lighthouse": "^12.1.0",
+    "next": "^14.1.0",
+    "node-fetch": "^3.3.2",
+    "postcss": "^8.4.40",
+    "puppeteer": "^22.15.0",
+    "react": "^18.2.0",
+    "react-dom": "18.2.0",
+    "tailwindcss": "^3.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.6",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0",
+    "typescript": "^5.3.3"
+  }
+}
