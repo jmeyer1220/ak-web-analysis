@@ -32,22 +32,13 @@ const handleSubmit = async (e) => {
       throw new Error(data.error);
     }
 
-    setPageCount(data.pageCount || 0);
-    setContentTypes(data.contentTypes || {});
-    setContentTypeBreakdown(data.contentTypeBreakdown || {});
-    setTrackingTags(data.trackingTags || {});
-    setIsAnalyzed(true);
-  } catch (err) {
-    console.error("Error fetching data:", err);
-    setError(err.message || "An error occurred while analyzing the website");
-  }
-};
 
     try {
       const pageAnalysisResponse = await axios.get(`/api/crawl?url=${url}`);
-      setPageCount(pageAnalysisResponse.data.pageCount);
-      setContentTypes(pageAnalysisResponse.data.contentTypes);
-      setContentTypeBreakdown(pageAnalysisResponse.data.contentTypeBreakdown);
+      setPageCount(data.pageCount || 0);
+      setContentTypes(data.contentTypes || {});
+      setContentTypeBreakdown(data.contentTypeBreakdown || {});
+      setTrackingTags(data.trackingTags || {});
 
   
       // Fetch technologies
@@ -121,31 +112,47 @@ const handleSubmit = async (e) => {
 
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
-        {pageCount !== null && (
-          <div className="mb-4">
-            <h2 className="text-2xl font-semibold text-gray-700">
-              Analysis Results:
-            </h2>
-            <p>
-              <strong>Page Count:</strong>
-            </p>
-            <h3 className="text-xl font-semibold text-gray-700">{pageCount}</h3>
-          </div>
-          
-        )}
-{contentTypes && Object.keys(contentTypes).length > 0 && (
-  <div className="mb-4">
-    <h3 className="text-xl font-semibold text-gray-700">Content Types:</h3>
-    <ul className="list-disc pl-5">
-      {Object.entries(contentTypes).map(([type, count]) => (
-        <li key={type}>
-          {type}: {count} ({contentTypeBreakdown[type]})
-        </li>
-      ))}
-    </ul>
+
+
+
+        {isAnalyzed && (
+  <div>
+    <h2 className="text-2xl font-semibold text-gray-700">Analysis Results:</h2>
+    
+    {pageCount !== null && (
+      <div className="mb-4">
+        <p><strong>Page Count:</strong></p>
+        <h3 className="text-xl font-semibold text-gray-700">{pageCount}</h3>
+      </div>
+    )}
+
+    {contentTypes && Object.keys(contentTypes).length > 0 && (
+      <div className="mb-4">
+        <h3 className="text-xl font-semibold text-gray-700">Content Types:</h3>
+        <ul className="list-disc pl-5">
+          {Object.entries(contentTypes).map(([type, count]) => (
+            <li key={type}>
+              {type}: {count} ({contentTypeBreakdown[type] || '0%'})
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    {trackingTags && Object.keys(trackingTags).length > 0 && (
+      <div className="mb-4">
+        <h3 className="text-xl font-semibold text-gray-700">Tracking Tags:</h3>
+        <ul className="list-disc pl-5">
+          {Object.entries(trackingTags).map(([tag, id]) => (
+            <li key={tag}>
+              {tag}: {id}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
   </div>
 )}
-
         {cms.length > 0 && (
           <div className="mb-4">
             <h3 className="text-xl font-semibold text-gray-700">CMS:</h3>
@@ -180,18 +187,6 @@ const handleSubmit = async (e) => {
             </ul>
           </div>
         )}
-        {Object.keys(trackingTags).length > 0 && (
-  <div className="mb-4">
-    <h3 className="text-xl font-semibold text-gray-700">Tracking Tags:</h3>
-    <ul className="list-disc pl-5">
-      {Object.entries(trackingTags).map(([tag, id]) => (
-        <li key={tag}>
-          {tag}: {id}
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
 
         {performance !== null && (
           <div className="mb-4">
