@@ -15,15 +15,33 @@ export default function Analyze() {
   const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
   const [trackingTags, setTrackingTags] = useState({});
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setPageCount(null);
-    setCms([]);
-    setHosting([]);
-    setOtherTechnologies([]);
-    setPerformance(null);
-    setIsAnalyzed(false); // Reset analysis status
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError(null);
+  setPageCount(null);
+  setContentTypes({});
+  setContentTypeBreakdown({});
+  setTrackingTags({});
+  setIsAnalyzed(false);
+
+  try {
+    const pageAnalysisResponse = await axios.get(`/api/crawl?url=${url}`);
+    const data = pageAnalysisResponse.data;
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
+
+    setPageCount(data.pageCount || 0);
+    setContentTypes(data.contentTypes || {});
+    setContentTypeBreakdown(data.contentTypeBreakdown || {});
+    setTrackingTags(data.trackingTags || {});
+    setIsAnalyzed(true);
+  } catch (err) {
+    console.error("Error fetching data:", err);
+    setError(err.message || "An error occurred while analyzing the website");
+  }
+};
 
     try {
       const pageAnalysisResponse = await axios.get(`/api/crawl?url=${url}`);

@@ -49,15 +49,22 @@ const trackingPatterns = [
   }
 ];
 
-
 export default async function handler(req, res) {
   const { url: targetUrl } = req.query;
   
+  if (!targetUrl) {
+    return res.status(400).json({ error: "URL parameter is required" });
+  }
+
   try {
+    console.log(`Fetching URL: ${targetUrl}`);
     const { data } = await axios.get(targetUrl);
+    console.log(`Successfully fetched URL: ${targetUrl}`);
+
     const $ = cheerio.load(data);
     const links = $("a");
     
+    console.log(`Analyzing content types...`);
     const contentTypes = {};
     let totalCount = 0;
 
@@ -82,17 +89,16 @@ export default async function handler(req, res) {
           }
         }
       }
-
     });
 
-    const contentTypeBreakdown = Object.fromEntries(
-      Object.entries(contentTypes).map(([type, count]) => [
-        type,
-        ((count / totalCount) * 100).toFixed(2) + '%'
-      ])
-    );
+    console.log(`Content types analyzed. Total links: ${totalCount}`);
 
-        // Detect tracking tags
+    const contentTypeBreakdown = {};
+    for (const [type, count] of Object.entries(contentTypes)) {
+      contentTypeBreakdown[type] = ((count / totalCount) * 100).toFixed(2) + '%';
+    }
+
+    console.log(`Detecting tracking tags...`);
     const trackingTags = {};
     const scripts = $("script");
 
@@ -110,13 +116,16 @@ export default async function handler(req, res) {
       });
     });
 
+    console.log(`Tracking tags detected: ${Object.keys(trackingTags).length}`);
+
     res.status(200).json({
       pageCount: totalCount,
       contentTypes: contentTypes,
-      contentTypeBreakdown: contentTypeBreakdown
+      contentTypeBreakdown: contentTypeBreakdown,
+      trackingTags: trackingTags
     });
   } catch (error) {
     console.error("Error crawling the site:", error.message, error.stack);
-    res.status(500).json({ error: "Error crawling the site" });
+    res.status(500).json({ error: "Error crawling the site", details: error.message });
   }
 }
