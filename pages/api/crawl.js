@@ -2,6 +2,20 @@ import axios from "axios";
 import cheerio from "cheerio";
 import url from "url";
 
+const contentPatterns = [
+  { pattern: /\/(blog|article|post|news)\//, type: "Article" },
+  { pattern: /\/(event|webinar|workshop|conference)\//, type: "Event" },
+  { pattern: /\/(product|item|service)\//, type: "Product/Service" },
+  { pattern: /\/(about|contact|faq)/, type: "Info" },
+  { pattern: /\/(staff|people|team)/, type: "Staff" },
+  { pattern: /\/(ministry|ministries|youth|adults|young-adults|kids|children)/, type: "Ministry" },
+  { pattern: /\/(episode|podcast)\//, type: "Podcast" },
+  { pattern: /\/(group|home-group|connect-group)/, type: "Group" },
+  { pattern: /\/(resource|download|ebook|whitepaper)\//, type: "Resource" },
+  { pattern: /\/(sermon|message)\//, type: "Sermon" },
+  // Add more patterns as needed
+];
+
 export default async function handler(req, res) {
   const { url: targetUrl } = req.query;
   
@@ -10,14 +24,8 @@ export default async function handler(req, res) {
     const $ = cheerio.load(data);
     const links = $("a");
     
-    const contentTypes = {
-      pages: 0,
-      events: 0,
-      sermons: 0,
-      news: 0,
-      blog: 0,
-      other: 0
-    };
+    const contentTypes = {};
+    let totalCount = 0;
 
     links.each((index, element) => {
       const href = $(element).attr("href");
@@ -26,36 +34,33 @@ export default async function handler(req, res) {
         const path = parsedUrl.pathname;
 
         if (path) {
-          if (path.includes("/events/")) {
-            contentTypes.events++;
-          } else if (path.includes("/sermons/")) {
-            contentTypes.sermons++;
-          } else if (path.includes("/news/")) {
-            contentTypes.news++;
-          } else if (path.includes("/blog/")) {
-            contentTypes.blog++;
-          } else if (path.endsWith(".html") || path.endsWith("/") || path === "") {
-            contentTypes.pages++;
-          } else {
-            contentTypes.other++;
+          totalCount++;
+          let matched = false;
+          for (const { pattern, type } of contentPatterns) {
+            if (pattern.test(path)) {
+              contentTypes[type] = (contentTypes[type] || 0) + 1;
+              matched = true;
+              break;
+            }
+          }
+          if (!matched) {
+            contentTypes["Other"] = (contentTypes["Other"] || 0) + 1;
           }
         }
       }
     });
 
-    const totalCount = Object.values(contentTypes).reduce((a, b) => a + b, 0);
+    const contentTypeBreakdown = Object.fromEntries(
+      Object.entries(contentTypes).map(([type, count]) => [
+        type,
+        ((count / totalCount) * 100).toFixed(2) + '%'
+      ])
+    );
 
     res.status(200).json({
       pageCount: totalCount,
       contentTypes: contentTypes,
-      contentTypeBreakdown: {
-        events: (contentTypes.events / totalCount * 100).toFixed(2) + '%',
-        sermons: (contentTypes.sermons / totalCount * 100).toFixed(2) + '%',
-        news: (contentTypes.news / totalCount * 100).toFixed(2) + '%',
-        blog: (contentTypes.blog / totalCount * 100).toFixed(2) + '%',
-        pages: (contentTypes.pages / totalCount * 100).toFixed(2) + '%',
-        other: (contentTypes.other / totalCount * 100).toFixed(2) + '%'
-      }
+      contentTypeBreakdown: contentTypeBreakdown
     });
   } catch (error) {
     console.error("Error crawling the site:", error.message, error.stack);

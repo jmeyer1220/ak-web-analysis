@@ -111,12 +111,14 @@ const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
           </div>
           
         )}
-        {contentTypes && Object.keys(contentTypes).length > 0 && (
+{contentTypes && Object.keys(contentTypes).length > 0 && (
   <div className="mb-4">
     <h3 className="text-xl font-semibold text-gray-700">Content Types:</h3>
     <ul className="list-disc pl-5">
       {Object.entries(contentTypes).map(([type, count]) => (
-        <li key={type}>{type}: {count} ({contentTypeBreakdown[type]})</li>
+        <li key={type}>
+          {type}: {count} ({contentTypeBreakdown[type]})
+        </li>
       ))}
     </ul>
   </div>
