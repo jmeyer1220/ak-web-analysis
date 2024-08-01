@@ -11,6 +11,8 @@ export default function Analyze() {
   const [content, setContent] = useState(null);
   const [error, setError] = useState(null);
   const [isAnalyzed, setIsAnalyzed] = useState(false); // New state variable
+  const [contentTypes, setContentTypes] = useState({});
+const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,10 +25,14 @@ export default function Analyze() {
     setIsAnalyzed(false); // Reset analysis status
 
     try {
-      // Fetch page count
-      const pageCountResponse = await axios.get(`/api/crawl?url=${url}`);
-      setPageCount(pageCountResponse.data.pageCount);
-
+      // Fetch page count and content types
+      const pageAnalysisResponse = await axios.get(`/api/crawl?url=${url}`);
+      setPageCount(pageAnalysisResponse.data.pageCount);
+      
+      // You might want to create new state variables for these
+      const contentTypes = pageAnalysisResponse.data.contentTypes;
+      const contentTypeBreakdown = pageAnalysisResponse.data.contentTypeBreakdown;
+  
       // Fetch technologies
       const technologiesResponse = await axios.get(`/api/platform?url=${url}`);
       setCms(technologiesResponse.data.cms);
@@ -106,7 +112,18 @@ export default function Analyze() {
             </p>
             <h3 className="text-xl font-semibold text-gray-700">{pageCount}</h3>
           </div>
+          
         )}
+        {contentTypes && Object.keys(contentTypes).length > 0 && (
+  <div className="mb-4">
+    <h3 className="text-xl font-semibold text-gray-700">Content Types:</h3>
+    <ul className="list-disc pl-5">
+      {Object.entries(contentTypes).map(([type, count]) => (
+        <li key={type}>{type}: {count} ({contentTypeBreakdown[type]})</li>
+      ))}
+    </ul>
+  </div>
+)}
 
         {cms.length > 0 && (
           <div className="mb-4">

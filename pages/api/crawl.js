@@ -45,7 +45,18 @@ export default async function handler(req, res) {
 
     const totalCount = Object.values(contentTypes).reduce((a, b) => a + b, 0);
 
-    res.status(200).json({ contentTypes, totalCount });
+    res.status(200).json({
+      pageCount: totalCount,
+      contentTypes: contentTypes,
+      contentTypeBreakdown: {
+        events: (contentTypes.events / totalCount * 100).toFixed(2) + '%',
+        sermons: (contentTypes.sermons / totalCount * 100).toFixed(2) + '%',
+        news: (contentTypes.news / totalCount * 100).toFixed(2) + '%',
+        blog: (contentTypes.blog / totalCount * 100).toFixed(2) + '%',
+        pages: (contentTypes.pages / totalCount * 100).toFixed(2) + '%',
+        other: (contentTypes.other / totalCount * 100).toFixed(2) + '%'
+      }
+    });
   } catch (error) {
     console.error("Error crawling the site:", error.message, error.stack);
     res.status(500).json({ error: "Error crawling the site" });
