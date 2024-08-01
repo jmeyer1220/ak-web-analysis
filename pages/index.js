@@ -25,13 +25,10 @@ const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
     setIsAnalyzed(false); // Reset analysis status
 
     try {
-      // Fetch page count and content types
       const pageAnalysisResponse = await axios.get(`/api/crawl?url=${url}`);
       setPageCount(pageAnalysisResponse.data.pageCount);
-      
-      // You might want to create new state variables for these
-      const contentTypes = pageAnalysisResponse.data.contentTypes;
-      const contentTypeBreakdown = pageAnalysisResponse.data.contentTypeBreakdown;
+      setContentTypes(pageAnalysisResponse.data.contentTypes);
+      setContentTypeBreakdown(pageAnalysisResponse.data.contentTypeBreakdown);
   
       // Fetch technologies
       const technologiesResponse = await axios.get(`/api/platform?url=${url}`);
