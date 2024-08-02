@@ -19,47 +19,48 @@ export default function Analyze() {
 
 const [crawledUrls, setCrawledUrls] = useState([]);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError(null);
-  setPageCount(null);
-  setCms([]);
-  setHosting([]);
-  setOtherTechnologies([]);
-  setContentTypes({});
-  setContentTypeBreakdown({});
-  setTrackingTags({});
-  setCrawledUrls([]); // Reset crawled URLs using the existing state setter
-  setIsAnalyzed(false);
-  try {
-    // Fetch page analysis data
-    const pageAnalysisResponse = await axios.get(`/api/crawl?url=${url}`);
-    const pageData = pageAnalysisResponse.data;
-    if (pageData.error) {
-      throw new Error(pageData.error);
-    }
-    setPageCount(pageData.pageCount || 0);
-    setContentTypes(pageData.contentTypes || {});
-    setContentTypeBreakdown(pageData.contentTypeBreakdown || {});
-    setTrackingTags(pageData.trackingTags || {});
-    setCrawledUrls(pageData.crawledUrls || []); // Update crawled URLs using the existing state setter
 
-    // Fetch technologies
-    const technologiesResponse = await axios.get(`/api/platform?url=${url}`);
-    const techData = technologiesResponse.data;
-    setCms(techData.cms || []);
-    setHosting(techData.hosting || []);
-    setOtherTechnologies(techData.otherTechnologies || []);
-    setIsAnalyzed(true);
-  } catch (err) {
-    console.error(
-      "Error fetching data:",
-      err.response?.data || err.message,
-      err.stack
-    );
-    setError("Error fetching data. Check the console for more details.");
-  }
-};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setPageCount(null);
+    setCms([]);
+    setHosting([]);
+    setOtherTechnologies([]);
+    setContentTypes({});
+    setContentTypeBreakdown({});
+    setTrackingTags({});
+    setCrawledUrls([]); // Reset crawled URLs
+    setIsAnalyzed(false);
+    try {
+      // Fetch page analysis data
+      const pageAnalysisResponse = await axios.get(`/api/crawl?url=${url}`);
+      const pageData = pageAnalysisResponse.data;
+      if (pageData.error) {
+        throw new Error(pageData.error);
+      }
+      setPageCount(pageData.pageCount || 0);
+      setContentTypes(pageData.contentTypes || {});
+      setContentTypeBreakdown(pageData.contentTypeBreakdown || {});
+      setTrackingTags(pageData.trackingTags || {});
+      setCrawledUrls(pageData.crawledUrls || []); // Set crawled URLs
+
+      // Fetch technologies
+      const technologiesResponse = await axios.get(`/api/platform?url=${url}`);
+      const techData = technologiesResponse.data;
+      setCms(techData.cms || []);
+      setHosting(techData.hosting || []);
+      setOtherTechnologies(techData.otherTechnologies || []);
+      setIsAnalyzed(true);
+    } catch (err) {
+      console.error(
+        "Error fetching data:",
+        err.response?.data || err.message,
+        err.stack
+      );
+      setError("Error fetching data. Check the console for more details.");
+    }
+  };
 
   const handleScrape = async (e) => {
     e.preventDefault();
@@ -134,7 +135,9 @@ const handleSubmit = async (e) => {
       </div>
     )}
 
-    <URLListHovercard urls={crawledUrls} />
+    <div className="mb-4">
+      <URLListHovercard urls={crawledUrls} />
+    </div>
 
     {trackingTags && Object.keys(trackingTags).length > 0 && (
       <div className="mb-4">
