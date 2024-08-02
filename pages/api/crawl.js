@@ -1,7 +1,7 @@
 import axios from "axios";
 import cheerio from "cheerio";
 import url from "url";
-import parseString from "xml2js";
+import xml2js from 'xml2js';
 
 async function crawlPage(targetUrl, contentTypes) {
   const { data } = await axios.get(targetUrl);
@@ -56,7 +56,6 @@ async function crawlSitemap(sitemapUrl, contentTypes) {
       }
     });
   });
-}
 
 const contentPatterns = [
   { pattern: /\/(blog|article|post|news|blogs|articles|posts)\//, type: "Articles" },
@@ -105,6 +104,7 @@ const trackingPatterns = [
     scriptPattern: /analytics\.tiktok\.com\/i18n\/pixel\/events\.js/
   }
 ];
+
 export default async function handler(req, res) {
   const { url: targetUrl } = req.query;
 
@@ -115,10 +115,6 @@ export default async function handler(req, res) {
       sermons: 0,
       news: 0,
       blog: 0,
-      resources: 0,
-      staff: 0,
-      locations: 0,
-      services: 0,
       other: 0
     };
 
