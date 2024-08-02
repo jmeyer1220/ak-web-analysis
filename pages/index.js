@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
-import URLListHovercard from '../components/ui/hovercard';
+import URLListHovercard from "../components/ui/hovercard";
+import ToastNotification from "../components/ui/toastNotification";
+import LoadingSkeleton from "../components/ui/skeleton";
 
 export default function Analyze() {
   const [url, setUrl] = useState("");
@@ -16,11 +18,14 @@ export default function Analyze() {
   const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
   const [trackingTags, setTrackingTags] = useState({});
   const [crawledUrls, setCrawledUrls] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setIsLoading(true);
+    setToastOpen(true);
     setPageCount(null);
     setCms([]);
     setHosting([]);
@@ -55,7 +60,7 @@ export default function Analyze() {
       console.error(
         "Error fetching data:",
         err.response?.data || err.message,
-        err.stack
+        err.stack,
       );
       setError("Error fetching data. Check the console for more details.");
     }
@@ -80,6 +85,13 @@ export default function Analyze() {
     }
   };
 
+  const ResultCard = ({ title, children }) => (
+    <div className="bg-white p-4 rounded shadow-md mb-4">
+      <h3 className="text-xl font-semibold text-gray-700 mb-2">{title}</h3>
+      {children}
+    </div>
+  );
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-2xl">
@@ -99,103 +111,100 @@ export default function Analyze() {
             <button
               type="submit"
               className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              disabled={isLoading}
             >
-              Analyze
+              {isLoading ? "Analyzing..." : "Analyze"}
             </button>
           </div>
         </form>
 
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
+        {isLoading ? (
+          <LoadingSkeleton />
+        ) : (
+          isAnalyzed && (
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-700">
+                Analysis Results:
+              </h2>
 
+              {pageCount !== null && (
+                <ResultCard title="Page Count">
+                  <h3 className="text-xl font-semibold text-gray-700">
+                    {pageCount}
+                  </h3>
+                </ResultCard>
+              )}
 
+              {contentTypes && Object.keys(contentTypes).length > 0 && (
+                <ResultCard title="Content Types">
+                  <ul className="list-disc pl-5">
+                    {Object.entries(contentTypes).map(([type, count]) => (
+                      <li key={type}>
+                        {type}: {count} ({contentTypeBreakdown[type] || "0%"})
+                      </li>
+                    ))}
+                  </ul>
+                </ResultCard>
+              )}
+
+              <div className="mb-4">
+                <URLListHovercard urls={crawledUrls} />
+              </div>
+
+              {trackingTags && Object.keys(trackingTags).length > 0 && (
+                <ResultCard title="Tracking Tags">
+                  <ul className="list-disc pl-5">
+                    {Object.entries(trackingTags).map(([tag, id]) => (
+                      <li key={tag}>
+                        {tag}: {id}
+                      </li>
+                    ))}
+                  </ul>
+                </ResultCard>
+              )}
+
+              {cms.length > 0 && (
+                <ResultCard title="CMS">
+                  <ul className="list-disc pl-5">
+                    {cms.map((tech, index) => (
+                      <li key={index}>{tech.name}</li>
+                    ))}
+                  </ul>
+                </ResultCard>
+              )}
+
+              {hosting.length > 0 && (
+                <ResultCard title="Hosting">
+                  <ul className="list-disc pl-5">
+                    {hosting.map((tech, index) => (
+                      <li key={index}>{tech.name}</li>
+                    ))}
+                  </ul>
+                </ResultCard>
+              )}
+
+              {otherTechnologies.length > 0 && (
+                <ResultCard title="Other Technologies">
+                  <ul className="list-disc pl-5">
+                    {otherTechnologies.map((tech, index) => (
+                      <li key={index}>{tech.name}</li>
+                    ))}
+                  </ul>
+                </ResultCard>
+              )}
+
+              {performance !== null && (
+                <ResultCard title="Performance">
+                  <p>{performance * 100}%</p>
+                </ResultCard>
+              )}
+            </div>
+          )
+        )}
 
         {isAnalyzed && (
-  <div>
-    <h2 className="text-2xl font-semibold text-gray-700">Analysis Results:</h2>
-    
-    {pageCount !== null && (
-      <div className="mb-4">
-        <p><strong>Page Count:</strong></p>
-        <h3 className="text-xl font-semibold text-gray-700">{pageCount}</h3>
-      </div>
-    )}
-
-    {contentTypes && Object.keys(contentTypes).length > 0 && (
-      <div className="mb-4">
-        <h3 className="text-xl font-semibold text-gray-700">Content Types:</h3>
-        <ul className="list-disc pl-5">
-          {Object.entries(contentTypes).map(([type, count]) => (
-            <li key={type}>
-              {type}: {count} ({contentTypeBreakdown[type] || '0%'})
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
-
-    <div className="mb-4">
-      <URLListHovercard urls={crawledUrls} />
-    </div>
-
-    {trackingTags && Object.keys(trackingTags).length > 0 && (
-      <div className="mb-4">
-        <h3 className="text-xl font-semibold text-gray-700">Tracking Tags:</h3>
-        <ul className="list-disc pl-5">
-          {Object.entries(trackingTags).map(([tag, id]) => (
-            <li key={tag}>
-              {tag}: {id}
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
-  </div>
-)}
-        {cms.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-xl font-semibold text-gray-700">CMS:</h3>
-            <ul className="list-disc pl-5">
-              {cms.map((tech, index) => (
-                <li key={index}>{tech.name}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {hosting.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-xl font-semibold text-gray-700">Hosting:</h3>
-            <ul className="list-disc pl-5">
-              {hosting.map((tech, index) => (
-                <li key={index}>{tech.name}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {otherTechnologies.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-xl font-semibold text-gray-700">
-              Other Technologies:
-            </h3>
-            <ul className="list-disc pl-5">
-              {otherTechnologies.map((tech, index) => (
-                <li key={index}>{tech.name}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {performance !== null && (
-          <div className="mb-4">
-            <p>
-              <strong>Performance:</strong> {performance * 100}%
-            </p>
-          </div>
-        )}
-
-        {isAnalyzed && ( // Conditionally render the Scrape Content button
           <form onSubmit={handleScrape} className="mb-8">
             <button
               type="submit"
@@ -207,16 +216,18 @@ export default function Analyze() {
         )}
 
         {content && (
-          <div className="mb-4">
-            <h3 className="text-xl font-semibold text-gray-700">
-              Scraped Content:
-            </h3>
+          <ResultCard title="Scraped Content">
             <pre className="p-2 bg-gray-100 rounded">
               {JSON.stringify(content, null, 2)}
             </pre>
-          </div>
+          </ResultCard>
         )}
       </div>
+      <ToastNotification
+        open={toastOpen}
+        setOpen={setToastOpen}
+        message="Website analysis in progress..."
+      />
     </div>
   );
 }
