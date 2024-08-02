@@ -87,7 +87,7 @@ export default function Analyze() {
   };
 
   const ResultCard = ({ title, children }) => (
-    <div className="bg-white p-4 rounded shadow-md mb-4">
+    <div className="bg-slate-300 p-4 rounded shadow-md mb-4">
       <h3 className="text-xl font-semibold text-gray-700 mb-2">{title}</h3>
       {children}
     </div>
@@ -135,6 +135,9 @@ export default function Analyze() {
                   <h3 className="text-xl font-semibold text-gray-700">
                     {pageCount}
                   </h3>
+                <div className="mb-4">
+                <URLListHovercard urls={crawledUrls} />
+              </div>
                 </ResultCard>
               )}
 
@@ -149,10 +152,6 @@ export default function Analyze() {
                   </ul>
                 </ResultCard>
               )}
-
-              <div className="mb-4">
-                <URLListHovercard urls={crawledUrls} />
-              </div>
 
               {trackingTags && Object.keys(trackingTags).length > 0 && (
                 <ResultCard title="Tracking Tags">
