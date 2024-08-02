@@ -67,12 +67,14 @@ export default async function handler(req, res) {
     console.log(`Analyzing content types...`);
     const contentTypes = {};
     let totalCount = 0;
+    const crawledUrls = [];
 
     links.each((index, element) => {
       const href = $(element).attr("href");
       if (href) {
         const parsedUrl = url.parse(href);
         const path = parsedUrl.pathname;
+        crawledUrls.push(href);
 
         if (path) {
           totalCount++;
