@@ -17,7 +17,7 @@ const URLListHovercard = ({ urls }) => {
   return (
     <HoverCard.Root>
       <HoverCard.Trigger asChild>
-        <button className="px-4 py-2 text-sm font-medium text-gray-700 bg-slate-900 text-slate-50 hover:bg-white hover:text-slate-900  border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+        <button className="px-4 py-2 text-sm font-medium  bg-slate-900 text-slate-50 hover:bg-white hover:text-slate-900  border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
           View Crawled URLs
         </button>
       </HoverCard.Trigger>

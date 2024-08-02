@@ -87,17 +87,17 @@ export default function Analyze() {
   };
 
   const ResultCard = ({ title, children }) => (
-    <div className="bg-slate-100 p-4 rounded shadow-md mb-4">
+    <div className="bg-white p-4 rounded shadow-md mb-4">
       <h3 className="text-xl font-semibold text-gray-700 mb-2">{title}</h3>
       {children}
     </div>
   );
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-2xl">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-200">
+      <div className="bg-slate-100 p-8 rounded shadow-md w-full max-w-4xl">
         <h1 className="text-4xl font-bold mb-4 text-center text-gray-800">
-          Website Analyzer
+          Analyze a website:
         </h1>
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="flex items-center space-x-2">
@@ -111,7 +111,7 @@ export default function Analyze() {
             />
             <button
               type="submit"
-              className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="p-2 bg-slate-900 text-slate-50 hover:bg-white hover:text-slate-900 "
               disabled={isLoading}
             >
               {isLoading ? "Analyzing..." : "Analyze"}
