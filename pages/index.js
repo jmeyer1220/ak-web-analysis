@@ -1,5 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
+import URLListHovercard from "../components/ui/hovercard";
+import ToastNotification from "../components/ui/toastNotification";
+import LoadingSkeleton from "../components/ui/skeleton";
 
 export default function Analyze() {
   const [url, setUrl] = useState("");
@@ -12,37 +15,48 @@ export default function Analyze() {
   const [error, setError] = useState(null);
   const [isAnalyzed, setIsAnalyzed] = useState(false); // New state variable
   const [contentTypes, setContentTypes] = useState({});
-const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
+  const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
+  const [trackingTags, setTrackingTags] = useState({});
+  const [crawledUrls, setCrawledUrls] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setIsLoading(true);
+    setToastOpen(true);
     setPageCount(null);
     setCms([]);
     setHosting([]);
     setOtherTechnologies([]);
-    setPerformance(null);
-    setIsAnalyzed(false); // Reset analysis status
-
+    setContentTypes({});
+    setContentTypeBreakdown({});
+    setTrackingTags({});
+    setCrawledUrls([]); // Reset crawled URLs
+    setIsAnalyzed(false);
     try {
+      // Fetch page analysis data
       const pageAnalysisResponse = await axios.get(`/api/crawl?url=${url}`);
-      setPageCount(pageAnalysisResponse.data.pageCount);
-      setContentTypes(pageAnalysisResponse.data.contentTypes);
-      setContentTypeBreakdown(pageAnalysisResponse.data.contentTypeBreakdown);
-  
+      const pageData = pageAnalysisResponse.data;
+      if (pageData.error) {
+        throw new Error(pageData.error);
+      }
+      setPageCount(pageData.pageCount || 0);
+      setContentTypes(pageData.contentTypes || {});
+      setContentTypeBreakdown(pageData.contentTypeBreakdown || {});
+      setTrackingTags(pageData.trackingTags || {});
+      setCrawledUrls(pageData.crawledUrls || []); // Set crawled URLs
+      console.log("Current crawled URLs:", crawledUrls);
+
       // Fetch technologies
       const technologiesResponse = await axios.get(`/api/platform?url=${url}`);
-      setCms(technologiesResponse.data.cms);
-      setHosting(technologiesResponse.data.hosting);
-      setOtherTechnologies(technologiesResponse.data.otherTechnologies);
-
-      // Fetch performance
-      /*const performanceResponse = await axios.get(
-        `/api/performance?url=${url}`,
-      );
-      setPerformance(performanceResponse.data.performance);*/
-
-      setIsAnalyzed(true); // Set analysis status to true
+      const techData = technologiesResponse.data;
+      setCms(techData.cms || []);
+      setHosting(techData.hosting || []);
+      setOtherTechnologies(techData.otherTechnologies || []);
+      setIsAnalyzed(true);
+      setIsLoading(false); // Add this line
     } catch (err) {
       console.error(
         "Error fetching data:",
@@ -72,11 +86,18 @@ const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
     }
   };
 
+  const ResultCard = ({ title, children }) => (
+    <div className="bg-white p-4 rounded shadow-md mb-4">
+      <h3 className="text-xl font-semibold text-gray-700 mb-2">{title}</h3>
+      {children}
+    </div>
+  );
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-2xl">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-200">
+      <div className="bg-slate-100 p-8 rounded shadow-md w-full max-w-4xl">
         <h1 className="text-4xl font-bold mb-4 text-center text-gray-800">
-          Website Analyzer
+          Analyze a website:
         </h1>
         <form onSubmit={handleSubmit} className="mb-8">
           <div className="flex items-center space-x-2">
@@ -90,103 +111,113 @@ const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
             />
             <button
               type="submit"
-              className="p-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="p-2 bg-slate-900 text-slate-50 hover:bg-white hover:text-slate-900 "
+              disabled={isLoading}
             >
-              Analyze
+              {isLoading ? "Analyzing..." : "Analyze"}
             </button>
           </div>
         </form>
 
         {error && <p className="text-red-500 mb-4">{error}</p>}
 
-        {pageCount !== null && (
-          <div className="mb-4">
-            <h2 className="text-2xl font-semibold text-gray-700">
-              Analysis Results:
-            </h2>
-            <p>
-              <strong>Page Count:</strong>
-            </p>
-            <h3 className="text-xl font-semibold text-gray-700">{pageCount}</h3>
-          </div>
-          
-        )}
-        {contentTypes && Object.keys(contentTypes).length > 0 && (
-  <div className="mb-4">
-    <h3 className="text-xl font-semibold text-gray-700">Content Types:</h3>
-    <ul className="list-disc pl-5">
-      {Object.entries(contentTypes).map(([type, count]) => (
-        <li key={type}>{type}: {count} ({contentTypeBreakdown[type]})</li>
-      ))}
-    </ul>
-  </div>
-)}
+        {isLoading ? (
+          <LoadingSkeleton />
+        ) : (
+          isAnalyzed && (
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-700">
+                Analysis Results:
+              </h2>
+<div class="grid grid-cols-2 gap-2">
+              {pageCount !== null && (
+                <ResultCard title="Page Count">
+                  <h3 className="text-xl font-semibold text-gray-700">
+                    {pageCount}
+                  </h3>
+                <div className="mt-4">
+                <URLListHovercard urls={crawledUrls} />
+              </div>
+                </ResultCard>
+              )}
 
-        {cms.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-xl font-semibold text-gray-700">CMS:</h3>
-            <ul className="list-disc pl-5">
-              {cms.map((tech, index) => (
-                <li key={index}>{tech.name}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+              {contentTypes && Object.keys(contentTypes).length > 0 && (
+                <ResultCard title="Content Types">
+                  <ul className="list-disc pl-5">
+                    {Object.entries(contentTypes).map(([type, count]) => (
+                      <li key={type}>
+                        {type}: {count} ({contentTypeBreakdown[type] || "0%"})
+                      </li>
+                    ))}
+                  </ul>
+                </ResultCard>
+              )}
 
-        {hosting.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-xl font-semibold text-gray-700">Hosting:</h3>
-            <ul className="list-disc pl-5">
-              {hosting.map((tech, index) => (
-                <li key={index}>{tech.name}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+              {trackingTags && Object.keys(trackingTags).length > 0 && (
+                <ResultCard title="Tracking Tags">
+                  <ul className="list-disc pl-5">
+                    {Object.entries(trackingTags).map(([tag, id]) => (
+                      <li key={tag}>
+                        {tag}: {id}
+                      </li>
+                    ))}
+                  </ul>
+                </ResultCard>
+              )}
 
-        {otherTechnologies.length > 0 && (
-          <div className="mb-4">
-            <h3 className="text-xl font-semibold text-gray-700">
-              Other Technologies:
-            </h3>
-            <ul className="list-disc pl-5">
-              {otherTechnologies.map((tech, index) => (
-                <li key={index}>{tech.name}</li>
-              ))}
-            </ul>
-          </div>
-        )}
+              {cms.length > 0 && (
+                <ResultCard title="CMS">
+                  <ul className="list-disc pl-5">
+                    {cms.map((tech, index) => (
+                      <li key={index}>{tech.name}</li>
+                    ))}
+                  </ul>
+                </ResultCard>
+              )}
 
-        {performance !== null && (
-          <div className="mb-4">
-            <p>
-              <strong>Performance:</strong> {performance * 100}%
-            </p>
-          </div>
-        )}
+              {hosting.length > 0 && (
+                <ResultCard title="Hosting">
+                  <ul className="list-disc pl-5">
+                    {hosting.map((tech, index) => (
+                      <li key={index}>{tech.name}</li>
+                    ))}
+                  </ul>
+                </ResultCard>
+              )}
 
-        {isAnalyzed && ( // Conditionally render the Scrape Content button
-          <form onSubmit={handleScrape} className="mb-8">
-            <button
-              type="submit"
-              className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              Scrape Content
-            </button>
-          </form>
+              {otherTechnologies.length > 0 && (
+                <ResultCard title="Other Technologies">
+                  <ul className="list-disc pl-5">
+                    {otherTechnologies.map((tech, index) => (
+                      <li key={index}>{tech.name}</li>
+                    ))}
+                  </ul>
+                </ResultCard>
+              )}
+
+              {performance !== null && (
+                <ResultCard title="Performance">
+                  <p>{performance * 100}%</p>
+                </ResultCard>
+              )}
+              </div>
+            </div>
+          )
         )}
 
         {content && (
-          <div className="mb-4">
-            <h3 className="text-xl font-semibold text-gray-700">
-              Scraped Content:
-            </h3>
+          <ResultCard title="Scraped Content">
             <pre className="p-2 bg-gray-100 rounded">
               {JSON.stringify(content, null, 2)}
             </pre>
-          </div>
+          </ResultCard>
         )}
       </div>
+      <ToastNotification
+        open={toastOpen}
+        setOpen={setToastOpen}
+        message="Website analysis in progress..."
+      />
     </div>
   );
 }

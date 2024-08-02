@@ -58,6 +58,52 @@ async function crawlSitemap(sitemapUrl, contentTypes) {
   });
 }
 
+const contentPatterns = [
+  { pattern: /\/(blog|article|post|news|blogs|articles|posts)\//, type: "Articles" },
+  { pattern: /\/(event|events|webinar|workshop|conference)\//, type: "Events" },
+  { pattern: /\/(product|item|service)\//, type: "Product/Service Pages" },
+  { pattern: /\/(about|contact|faq)/, type: "Info Pages" },
+  { pattern: /\/(staff|people|team)/, type: "Staff" },
+  { pattern: /\/(ministry|ministries|youth|adults|young-adults|kids|children|students)/, type: "Ministry Pages" },
+  { pattern: /\/(episode|podcast|podcasts|episodes)\//, type: "Podcasts" },
+  { pattern: /\/(group|home-group|connect-group)/, type: "Groups" },
+  { pattern: /\/(resource|download|ebook|whitepaper)\//, type: "Resources" },
+  { pattern: /\/(sermon|message|messages|sermons|watch)\//, type: "Sermons" },
+  // Add more patterns as needed
+];
+
+const trackingPatterns = [
+  { 
+    name: "Google Analytics", 
+    pattern: /UA-\d{4,10}-\d{1,4}/g,
+    scriptPattern: /google-analytics\.com\/analytics\.js|googletagmanager\.com\/gtag\/js/
+  },
+  { 
+    name: "Google Analytics 4", 
+    pattern: /G-[A-Z0-9]{10}/g,
+    scriptPattern: /googletagmanager\.com\/gtag\/js/
+  },
+  { 
+    name: "Facebook Pixel", 
+    pattern: /fbq\('init',\s*'(\d+)'\)/,
+    scriptPattern: /connect\.facebook\.net\/en_US\/fbevents\.js/
+  },
+  { 
+    name: "HubSpot", 
+    pattern: /https:\/\/js\.hs-scripts\.com\/(\d+)\.js/,
+    scriptPattern: /js\.hs-scripts\.com/
+  },
+  { 
+    name: "Pinterest Tag", 
+    pattern: /pintrk\('load',\s*'(\d+)'\)/,
+    scriptPattern: /s\.pinimg\.com\/ct\/core\.js/
+  },
+  { 
+    name: "TikTok Pixel", 
+    pattern: /ttq\.load\('([A-Z0-9]+)'\)/,
+    scriptPattern: /analytics\.tiktok\.com\/i18n\/pixel\/events\.js/
+  }
+];
 export default async function handler(req, res) {
   const { url: targetUrl } = req.query;
 
@@ -71,6 +117,8 @@ export default async function handler(req, res) {
       other: 0
     };
 
+    let crawledUrls = new Set();
+
     if (targetUrl.endsWith('.xml')) {
       contentTypes = await crawlSitemap(targetUrl, contentTypes);
     } else {
@@ -78,19 +126,44 @@ export default async function handler(req, res) {
     }
 
     const totalCount = Object.values(contentTypes).reduce((a, b) => a + b, 0);
+    console.log(`Content types analyzed. Total links: ${totalCount}`);
+
+    const contentTypeBreakdown = {};
+    for (const [type, count] of Object.entries(contentTypes)) {
+      contentTypeBreakdown[type] = ((count / totalCount) * 100).toFixed(2) + '%';
+    }
+
+    console.log(`Detecting tracking tags...`);
+    const trackingTags = {};
+    const { data } = await axios.get(targetUrl);
+    const $ = cheerio.load(data);
+    const scripts = $("script");
+
+    scripts.each((index, element) => {
+      const scriptContent = $(element).html() || "";
+      const scriptSrc = $(element).attr("src") || "";
+
+      trackingPatterns.forEach(({ name, pattern, scriptPattern }) => {
+        if (scriptPattern.test(scriptSrc) || pattern.test(scriptContent)) {
+          const match = scriptContent.match(pattern) || scriptSrc.match(pattern);
+          if (match) {
+            trackingTags[name] = match[1] || "Detected";
+          }
+        }
+      });
+    });
+
+    console.log(`Tracking tags detected: ${Object.keys(trackingTags).length}`);
 
     res.status(200).json({
       pageCount: totalCount,
       contentTypes: contentTypes,
-      contentTypeBreakdown: Object.fromEntries(
-        Object.entries(contentTypes).map(([key, value]) => [
-          key,
-          `${((value / totalCount) * 100).toFixed(2)}%`
-        ])
-      )
+      contentTypeBreakdown: contentTypeBreakdown,
+      trackingTags: trackingTags,
+      crawledUrls: Array.from(crawledUrls) // Convert Set to Array for JSON serialization
     });
   } catch (error) {
     console.error("Error crawling the site:", error.message, error.stack);
-    res.status(500).json({ error: "Error crawling the site" });
+    res.status(500).json({ error: "Error crawling the site", details: error.message });
   }
 }
