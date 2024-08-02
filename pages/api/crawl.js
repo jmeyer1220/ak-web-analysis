@@ -37,7 +37,7 @@ async function crawlPage(targetUrl, contentTypes) {
 async function crawlSitemap(sitemapUrl, contentTypes) {
   const { data } = await axios.get(sitemapUrl);
   return new Promise((resolve, reject) => {
-    parseString(data, async (err, result) => {
+    xml2js.parseString(data, async (err, result) => {
       if (err) {
         reject(err);
       } else {
@@ -56,6 +56,7 @@ async function crawlSitemap(sitemapUrl, contentTypes) {
       }
     });
   });
+}
 
 const contentPatterns = [
   { pattern: /\/(blog|article|post|news|blogs|articles|posts)\//, type: "Articles" },
