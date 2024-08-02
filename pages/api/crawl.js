@@ -122,7 +122,8 @@ export default async function handler(req, res) {
       pageCount: totalCount,
       contentTypes: contentTypes,
       contentTypeBreakdown: contentTypeBreakdown,
-      trackingTags: trackingTags
+      trackingTags: trackingTags,
+      crawledUrls: crawledUrls // Inc
     });
   } catch (error) {
     console.error("Error crawling the site:", error.message, error.stack);
