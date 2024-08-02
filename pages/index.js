@@ -29,7 +29,7 @@ const handleSubmit = async (e) => {
   setContentTypes({});
   setContentTypeBreakdown({});
   setTrackingTags({});
-  setCrawledUrls([]); // Reset crawled URLs
+  setCrawledUrls([]); // Reset crawled URLs using the existing state setter
   setIsAnalyzed(false);
   try {
     // Fetch page analysis data
@@ -42,7 +42,7 @@ const handleSubmit = async (e) => {
     setContentTypes(pageData.contentTypes || {});
     setContentTypeBreakdown(pageData.contentTypeBreakdown || {});
     setTrackingTags(pageData.trackingTags || {});
-    setCrawledUrls(pageData.crawledUrls || []); // Set crawled URLs
+    setCrawledUrls(pageData.crawledUrls || []); // Update crawled URLs using the existing state setter
 
     // Fetch technologies
     const technologiesResponse = await axios.get(`/api/platform?url=${url}`);
@@ -60,6 +60,7 @@ const handleSubmit = async (e) => {
     setError("Error fetching data. Check the console for more details.");
   }
 };
+
   const handleScrape = async (e) => {
     e.preventDefault();
     setError(null);
