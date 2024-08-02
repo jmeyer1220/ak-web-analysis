@@ -17,8 +17,6 @@ export default function Analyze() {
   const [trackingTags, setTrackingTags] = useState({});
   const [crawledUrls, setCrawledUrls] = useState([]);
 
-const [crawledUrls, setCrawledUrls] = useState([]);
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
