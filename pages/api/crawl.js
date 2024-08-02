@@ -167,3 +167,5 @@ export default async function handler(req, res) {
     console.error("Error crawling the site:", error.message, error.stack);
     res.status(500).json({ error: "Error crawling the site", details: error.message });
   }
+ }
+}
