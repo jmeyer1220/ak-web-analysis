@@ -17,6 +17,8 @@ export default function Analyze() {
   const [trackingTags, setTrackingTags] = useState({});
   const [crawledUrls, setCrawledUrls] = useState([]);
 
+const [crawledUrls, setCrawledUrls] = useState([]);
+
 const handleSubmit = async (e) => {
   e.preventDefault();
   setError(null);
@@ -27,37 +29,27 @@ const handleSubmit = async (e) => {
   setContentTypes({});
   setContentTypeBreakdown({});
   setTrackingTags({});
-  setCrawledUrls(pageData.crawledUrls || []);
+  setCrawledUrls([]); // Reset crawled URLs
   setIsAnalyzed(false);
-
   try {
     // Fetch page analysis data
     const pageAnalysisResponse = await axios.get(`/api/crawl?url=${url}`);
     const pageData = pageAnalysisResponse.data;
-
     if (pageData.error) {
       throw new Error(pageData.error);
     }
-
     setPageCount(pageData.pageCount || 0);
     setContentTypes(pageData.contentTypes || {});
     setContentTypeBreakdown(pageData.contentTypeBreakdown || {});
     setTrackingTags(pageData.trackingTags || {});
+    setCrawledUrls(pageData.crawledUrls || []); // Set crawled URLs
 
     // Fetch technologies
     const technologiesResponse = await axios.get(`/api/platform?url=${url}`);
     const techData = technologiesResponse.data;
-
     setCms(techData.cms || []);
     setHosting(techData.hosting || []);
     setOtherTechnologies(techData.otherTechnologies || []);
-
-    // Fetch performance (commented out for now)
-    /*
-    const performanceResponse = await axios.get(`/api/performance?url=${url}`);
-    setPerformance(performanceResponse.data.performance);
-    */
-
     setIsAnalyzed(true);
   } catch (err) {
     console.error(
