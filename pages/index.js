@@ -129,7 +129,7 @@ export default function Analyze() {
               <h2 className="text-2xl font-semibold text-gray-700">
                 Analysis Results:
               </h2>
-
+<div class="grid grid-cols-2 gap-2">
               {pageCount !== null && (
                 <ResultCard title="Page Count">
                   <h3 className="text-xl font-semibold text-gray-700">
@@ -200,6 +200,7 @@ export default function Analyze() {
                   <p>{performance * 100}%</p>
                 </ResultCard>
               )}
+              </div>
             </div>
           )
         )}
