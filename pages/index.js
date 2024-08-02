@@ -56,6 +56,7 @@ export default function Analyze() {
       setHosting(techData.hosting || []);
       setOtherTechnologies(techData.otherTechnologies || []);
       setIsAnalyzed(true);
+      setIsLoading(false); // Add this line
     } catch (err) {
       console.error(
         "Error fetching data:",
