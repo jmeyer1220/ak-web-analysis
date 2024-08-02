@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import URLListHovercard from './components/ui/hovercard';
 
 export default function Analyze() {
   const [url, setUrl] = useState("");
@@ -14,6 +15,7 @@ export default function Analyze() {
   const [contentTypes, setContentTypes] = useState({});
   const [contentTypeBreakdown, setContentTypeBreakdown] = useState({});
   const [trackingTags, setTrackingTags] = useState({});
+  const [crawledUrls, setCrawledUrls] = useState([]);
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -25,6 +27,7 @@ const handleSubmit = async (e) => {
   setContentTypes({});
   setContentTypeBreakdown({});
   setTrackingTags({});
+  setCrawledUrls(pageData.crawledUrls || []);
   setIsAnalyzed(false);
 
   try {
@@ -137,6 +140,8 @@ const handleSubmit = async (e) => {
         </ul>
       </div>
     )}
+
+    <URLListHovercard urls={crawledUrls} />
 
     {trackingTags && Object.keys(trackingTags).length > 0 && (
       <div className="mb-4">
