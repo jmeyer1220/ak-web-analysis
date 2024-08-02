@@ -42,6 +42,7 @@ export default function Analyze() {
       setContentTypeBreakdown(pageData.contentTypeBreakdown || {});
       setTrackingTags(pageData.trackingTags || {});
       setCrawledUrls(pageData.crawledUrls || []); // Set crawled URLs
+      console.log("Current crawled URLs:", crawledUrls);
 
       // Fetch technologies
       const technologiesResponse = await axios.get(`/api/platform?url=${url}`);
