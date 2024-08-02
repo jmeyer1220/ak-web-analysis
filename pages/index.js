@@ -204,17 +204,6 @@ export default function Analyze() {
           )
         )}
 
-        /*isAnalyzed && (
-          <form onSubmit={handleScrape} className="mb-8">
-            <button
-              type="submit"
-              className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              Scrape Content
-            </button>
-          </form>
-        )}*/
-
         {content && (
           <ResultCard title="Scraped Content">
             <pre className="p-2 bg-gray-100 rounded">
