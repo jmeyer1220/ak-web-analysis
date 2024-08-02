@@ -61,7 +61,7 @@ async function crawlSitemap(sitemapUrl, contentTypes) {
 const contentPatterns = [
   { pattern: /\/(blog|article|post|news|blogs|articles|posts)\//, type: "Articles" },
   { pattern: /\/(event|events|webinar|workshop|conference)\//, type: "Events" },
-  { pattern: /\/(product|item|service)\//, type: "Product/Service Pages" },
+  { pattern: /\/(product|item|service|services|products|items|merchandise|apparel)\//, type: "Product/Service Pages" },
   { pattern: /\/(about|contact|faq)/, type: "Info Pages" },
   { pattern: /\/(staff|people|team)/, type: "Staff" },
   { pattern: /\/(ministry|ministries|youth|adults|young-adults|kids|children|students)/, type: "Ministry Pages" },
@@ -69,6 +69,7 @@ const contentPatterns = [
   { pattern: /\/(group|home-group|connect-group)/, type: "Groups" },
   { pattern: /\/(resource|download|ebook|whitepaper)\//, type: "Resources" },
   { pattern: /\/(sermon|message|messages|sermons|watch)\//, type: "Sermons" },
+  { pattern: /\/(locations|location|campus|campuses)\//, type: "Locations" },
   // Add more patterns as needed
 ];
 
@@ -114,6 +115,10 @@ export default async function handler(req, res) {
       sermons: 0,
       news: 0,
       blog: 0,
+      resources: 0,
+      staff: 0,
+      locations: 0,
+      services: 0,
       other: 0
     };
 
