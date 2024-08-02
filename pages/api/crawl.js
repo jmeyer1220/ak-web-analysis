@@ -1,7 +1,7 @@
 import axios from "axios";
 import cheerio from "cheerio";
 import url from "url";
-import { parseString } from "xml2js";
+import parseString from "xml2js";
 
 async function crawlPage(targetUrl, contentTypes) {
   const { data } = await axios.get(targetUrl);
