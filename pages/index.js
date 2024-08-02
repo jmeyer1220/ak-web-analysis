@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import URLListHovercard from './components/ui/hovercard';
+import URLListHovercard from '@/components/ui/hovercard';
 
 export default function Analyze() {
   const [url, setUrl] = useState("");
